@@ -10,6 +10,7 @@ import com.raulcg.ecommerce.repositories.UserRepository;
 import com.raulcg.ecommerce.request.SignupRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -22,6 +23,7 @@ public class UserService implements IUserService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Transactional
     @Override
     public User registerUser(SignupRequest signupRequest) {
 
@@ -38,16 +40,19 @@ public class UserService implements IUserService {
         return userRepository.save(newUser);
     }
 
+    @Transactional
     @Override
     public User createUser(User user) {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUserName(username);
