@@ -9,6 +9,7 @@ import com.raulcg.ecommerce.repositories.RoleRepository;
 import com.raulcg.ecommerce.repositories.UserRepository;
 import com.raulcg.ecommerce.request.SignupRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,9 @@ public class UserService implements IUserService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Transactional
     @Override
     public User registerUser(SignupRequest signupRequest) {
@@ -34,7 +38,7 @@ public class UserService implements IUserService {
         }
         Role role = roleRepository.findByRole(UserRole.USER).orElseThrow(() -> new RuntimeException("Role not found"));
 
-        User newUser = new User(signupRequest.getUserName(), signupRequest.getEmail(), signupRequest.getPassword());
+        User newUser = new User(signupRequest.getUserName(), signupRequest.getEmail(), passwordEncoder.encode(signupRequest.getPassword()));
         newUser.setRole(role);
 
         return userRepository.save(newUser);
