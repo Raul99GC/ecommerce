@@ -3,6 +3,7 @@ package com.raulcg.ecommerce.security.jwt;
 import com.raulcg.ecommerce.enums.JwtType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,13 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     }
 
     private String parseJwt(HttpServletRequest request) {
-        return jwtUtils.getJwtFromHeader(request);
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("token".equals(cookie.getName())) { // El nombre debe coincidir con el establecido en el controlador
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null; // Devuelve null si no se encuentra la cookie
     }
 }
