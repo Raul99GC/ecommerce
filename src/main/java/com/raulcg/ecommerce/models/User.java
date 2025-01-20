@@ -1,11 +1,10 @@
 package com.raulcg.ecommerce.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.raulcg.ecommerce.enums.UserRole;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,7 +20,6 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @JsonIgnore
     private UUID id;
 
     @Column(nullable = false, unique = true)
@@ -31,8 +29,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Min(8)
-    @NotNull
+    @Size(max = 120, min = 8)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @Column(nullable = false)
     private String password;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
