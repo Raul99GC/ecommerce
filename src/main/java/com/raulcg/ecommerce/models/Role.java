@@ -1,5 +1,6 @@
 package com.raulcg.ecommerce.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.raulcg.ecommerce.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JsonIgnore
     private UUID id;
 
     private UserRole role;
