@@ -7,6 +7,7 @@ import com.raulcg.ecommerce.request.ProductRequest;
 import com.raulcg.ecommerce.utils.CloudinaryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Base64;
@@ -37,6 +38,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     public void createProduct(ProductRequest product) {
         Product newProduct = new Product();
         newProduct.setTitle(product.getTitle());
@@ -51,11 +53,13 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
     @Override
+    @Transactional
     public void editProductById(ProductRequest product, UUID productId) {
         Product productSaved = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
@@ -72,8 +76,29 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     public void deleteProductById(UUID productId) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("Product not found"));
         productRepository.deleteById(product.getId());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Product> getFilteredProducts(List<String> categories, List<String> brands, String sortBy) {
+
+        if (categories == null || categories.isEmpty()) {
+            categories = null;
+        }
+        if (brands == null || brands.isEmpty()) {
+            brands = null;
+        }
+        return productRepository.findFilteredProducts(categories, brands, sortBy);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Product getProductById(UUID productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
     }
 }
