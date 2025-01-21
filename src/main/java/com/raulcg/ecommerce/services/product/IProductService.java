@@ -19,4 +19,7 @@ public interface IProductService {
 
     void deleteProductById(UUID productId);
 
+    List<Product> getFilteredProducts(List<String> categories, List<String> brands, String sortBy);
+
+    Product getProductById(UUID productId);
 }
