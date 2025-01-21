@@ -2,6 +2,7 @@ package com.raulcg.ecommerce.controllers.admin;
 
 import com.raulcg.ecommerce.models.Product;
 import com.raulcg.ecommerce.request.ProductRequest;
+import com.raulcg.ecommerce.responses.ImageUploadResponse;
 import com.raulcg.ecommerce.services.product.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
 
-@RestController
+@RestController("adminProductsController")
 @RequestMapping("/api/v1/admin/products")
 public class ProductsController {
 
@@ -25,9 +26,10 @@ public class ProductsController {
     }
 
     @PostMapping("/upload-image")
-    public ResponseEntity<?> uploadProductImage(@RequestBody MultipartFile my_file) throws Exception {
-        productService.handleImageUpload(my_file);
-        return ResponseEntity.ok("Image uploaded successfully");
+    public ResponseEntity<ImageUploadResponse> uploadProductImage(@RequestBody MultipartFile my_file) throws Exception {
+        String url = productService.handleImageUpload(my_file);
+        ImageUploadResponse response = new ImageUploadResponse(true, url);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/add")
