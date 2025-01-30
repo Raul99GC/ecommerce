@@ -30,9 +30,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         try {
             String jwt = parseJwt(request);
 
-            if(jwt != null && jwtUtils.validateToken(jwt)) {
+            if (jwt != null && jwtUtils.validateToken(jwt)) {
                 String sub = jwtUtils.getSubFromToken(jwt, JwtType.SIGNIN_TOKEN);
-                String authorities = jwtUtils.getAuthorities(jwt,JwtType.SIGNIN_TOKEN);
+                String authorities = jwtUtils.getAuthorities(jwt, JwtType.SIGNIN_TOKEN);
 
                 List<GrantedAuthority> authoritiesList = AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
 
@@ -54,7 +54,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                     return cookie.getValue();
                 }
             }
+        } else {
+            return jwtUtils.getJwtFromHeader(request);
         }
-        return null; // Devuelve null si no se encuentra la cookie
+        return null;
     }
 }

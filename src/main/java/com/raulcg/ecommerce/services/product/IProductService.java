@@ -11,7 +11,7 @@ public interface IProductService {
 
     String handleImageUpload(MultipartFile file) throws Exception;
 
-    void createProduct(ProductRequest product);
+    Product createProduct(ProductRequest product);
 
     List<Product> getAllProducts();
 
