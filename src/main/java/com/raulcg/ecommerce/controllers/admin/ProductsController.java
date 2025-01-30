@@ -2,10 +2,12 @@ package com.raulcg.ecommerce.controllers.admin;
 
 import com.raulcg.ecommerce.models.Product;
 import com.raulcg.ecommerce.request.ProductRequest;
+import com.raulcg.ecommerce.responses.GenericApiResponse;
 import com.raulcg.ecommerce.responses.ImageUploadResponse;
 import com.raulcg.ecommerce.services.product.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,16 +28,16 @@ public class ProductsController {
     }
 
     @PostMapping("/upload-image")
-    public ResponseEntity<ImageUploadResponse> uploadProductImage(@RequestBody MultipartFile my_file) throws Exception {
+    public ResponseEntity<ImageUploadResponse> uploadProductImage(@RequestParam("my_file") MultipartFile my_file) throws Exception {
         String url = productService.handleImageUpload(my_file);
         ImageUploadResponse response = new ImageUploadResponse(true, url);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addProduct(@RequestBody ProductRequest productRequest) {
-        productService.createProduct(productRequest);
-        return ResponseEntity.ok("Product created successfully");
+    public ResponseEntity<GenericApiResponse<Product>> addProduct(@Validated @RequestBody ProductRequest productRequest) {
+        Product product = productService.createProduct(productRequest);
+        return ResponseEntity.ok(new GenericApiResponse<>(true, product));
     }
 
     @PostMapping("/edit/{productId}")
