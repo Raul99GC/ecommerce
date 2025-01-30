@@ -39,7 +39,7 @@ public class ProductService implements IProductService {
 
     @Override
     @Transactional
-    public void createProduct(ProductRequest product) {
+    public Product createProduct(ProductRequest product) {
         Product newProduct = new Product();
         newProduct.setTitle(product.getTitle());
         newProduct.setDescription(product.getDescription());
@@ -49,7 +49,7 @@ public class ProductService implements IProductService {
         newProduct.setBrand(product.getBrand());
         newProduct.setStock(product.getStock());
         newProduct.setAverageReview(product.getAverageReview());
-        productRepository.save(newProduct);
+        return productRepository.save(newProduct);
     }
 
     @Override
