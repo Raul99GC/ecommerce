@@ -1,11 +1,13 @@
 package com.raulcg.ecommerce.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -16,6 +18,7 @@ import java.util.UUID;
 @Entity
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode
 public class User {
 
     @Id
@@ -35,7 +38,14 @@ public class User {
     private String password;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JsonManagedReference
     private Role role;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(referencedColumnName = "id")
+    @JsonManagedReference
+    @EqualsAndHashCode.Exclude
+    private Cart cart;
 
     @JsonIgnore
     @CreationTimestamp
@@ -56,5 +66,4 @@ public class User {
         this.userName = userName;
         this.email = email;
     }
-
 }
