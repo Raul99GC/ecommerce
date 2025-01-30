@@ -14,4 +14,6 @@ public interface IUserService {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByUsername(String username);
+
+    Boolean existUser(String email);
 }
