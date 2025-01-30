@@ -1,10 +1,13 @@
 package com.raulcg.ecommerce.security;
 
+import com.raulcg.ecommerce.security.jwt.AuthEntryPointJwt;
+import com.raulcg.ecommerce.security.jwt.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -13,12 +16,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-
-import com.raulcg.ecommerce.enums.UserRole;
-import com.raulcg.ecommerce.models.Role;
-import com.raulcg.ecommerce.repositories.RoleRepository;
-import com.raulcg.ecommerce.security.jwt.AuthEntryPointJwt;
-import com.raulcg.ecommerce.security.jwt.AuthTokenFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -41,8 +38,12 @@ public class SecurityConfig {
                 managment -> managment.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
+        http.cors(Customizer.withDefaults());
+
         http.authorizeHttpRequests(requests -> requests
+                .requestMatchers("/api/v1/admin/**").authenticated()
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/**").authenticated()
                 .anyRequest().permitAll()
         );
 
@@ -61,16 +62,4 @@ public class SecurityConfig {
         return auth.getAuthenticationManager();
     }
 
-    @Bean
-    public CommandLineRunner initData(RoleRepository roleRepository) {
-
-        return args -> {
-            if (roleRepository.findByRole(UserRole.ADMIN).isEmpty()) {
-                roleRepository.save(new Role(UserRole.ADMIN));
-            }
-            if (roleRepository.findByRole(UserRole.USER).isEmpty()) {
-                roleRepository.save(new Role(UserRole.USER));
-            }
-        };
-    }
 }
