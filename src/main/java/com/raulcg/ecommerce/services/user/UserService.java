@@ -3,8 +3,10 @@ package com.raulcg.ecommerce.services.user;
 import com.raulcg.ecommerce.enums.UserRole;
 import com.raulcg.ecommerce.exceptions.EmailAlreadyExistsException;
 import com.raulcg.ecommerce.exceptions.UsernameAlreadyExistsException;
+import com.raulcg.ecommerce.models.Cart;
 import com.raulcg.ecommerce.models.Role;
 import com.raulcg.ecommerce.models.User;
+import com.raulcg.ecommerce.repositories.CartRepository;
 import com.raulcg.ecommerce.repositories.RoleRepository;
 import com.raulcg.ecommerce.repositories.UserRepository;
 import com.raulcg.ecommerce.request.SignupRequest;
@@ -18,14 +20,25 @@ import java.util.Optional;
 @Service
 public class UserService implements IUserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private CartRepository cartRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    // Constructor con dependencias requeridas
+    public UserService(UserRepository userRepository,
+                       RoleRepository roleRepository,
+                       PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
+    // Setter para la dependencia opcional
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    public void setCartRepository(CartRepository cartRepository) {
+        this.cartRepository = cartRepository;
+    }
 
     @Transactional
     @Override
@@ -37,11 +50,18 @@ public class UserService implements IUserService {
             throw new UsernameAlreadyExistsException("Username already taken");
         }
         Role role = roleRepository.findByRole(UserRole.USER).orElseThrow(() -> new RuntimeException("Role not found"));
-
+        Cart cartSaved = new Cart();
+        if (cartRepository != null) {
+            cartRepository.save(new Cart());
+        }
         User newUser = new User(signupRequest.getUserName(), signupRequest.getEmail(), passwordEncoder.encode(signupRequest.getPassword()));
         newUser.setRole(role);
+        newUser.setCart(cartSaved);
 
-        return userRepository.save(newUser);
+        User userSaved = userRepository.save(newUser);
+
+
+        return userSaved;
     }
 
     @Transactional
@@ -60,5 +80,10 @@ public class UserService implements IUserService {
     @Override
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUserName(username);
+    }
+
+    @Override
+    public Boolean existUser(String email) {
+        return userRepository.existsByEmail(email);
     }
 }
