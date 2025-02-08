@@ -22,4 +22,15 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
             @Param("brands") List<String> brands,
             @Param("sortBy") String sortBy
     );
+
+    // search by category
+    @Query("SELECT p FROM Product p WHERE " +
+            "LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(p.category) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    List<Product> searchProducts(@Param("keyword") String keyword);
+
+    @Query("SELECT COALESCE(AVG(r.reviewValue), 0) FROM ProductReview r WHERE r.product.id = :productId")
+    Integer findAverageRatingByProductId(@Param("productId") UUID productId);
 }
