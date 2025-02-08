@@ -1,7 +1,7 @@
 package com.raulcg.ecommerce.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.raulcg.ecommerce.repositories.CartItem;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -33,13 +34,18 @@ public class Product {
 
     private double price;
 
-    private int stock;
+    private int totalStock;
 
     private int averageReview;
 
     @JsonIgnore
     @OneToMany(mappedBy = "product")
+    @JsonManagedReference
     private Set<CartItem> cartItems;
+
+    @OneToMany(mappedBy = "product")
+    @JsonManagedReference
+    List<ProductReview> reviews;
 
     @JsonIgnore
     @CreationTimestamp
