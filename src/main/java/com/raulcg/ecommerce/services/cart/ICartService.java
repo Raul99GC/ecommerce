@@ -14,6 +14,6 @@ public interface ICartService {
 
     Cart updateCartItem(CartRequest cartRequest);
 
-    Cart deleteCartItem(CartRequest cartRequest);
+    Cart deleteCartItem(UUID userId, UUID productId);
 
 }
