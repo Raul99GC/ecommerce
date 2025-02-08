@@ -22,9 +22,10 @@ public class ProductsController {
     private ProductService productService;
 
     @GetMapping("/get")
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<GenericApiResponse<List<Product>>> getAllProducts() {
         List<Product> products = productService.getAllProducts();
-        return ResponseEntity.ok(products);
+        GenericApiResponse<List<Product>> response = new GenericApiResponse<>(true, products);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/upload-image")
