@@ -10,13 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
@@ -32,9 +33,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
             if (jwt != null && jwtUtils.validateToken(jwt)) {
                 String sub = jwtUtils.getSubFromToken(jwt, JwtType.SIGNIN_TOKEN);
-                String authorities = jwtUtils.getAuthorities(jwt, JwtType.SIGNIN_TOKEN);
+                List<String> authorities = jwtUtils.getAuthorities(jwt, JwtType.SIGNIN_TOKEN);
 
-                List<GrantedAuthority> authoritiesList = AuthorityUtils.commaSeparatedStringToAuthorityList(authorities);
+                List<GrantedAuthority> authoritiesList = authorities.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
 
                 Authentication auth = new UsernamePasswordAuthenticationToken(sub, null, authoritiesList);
 
