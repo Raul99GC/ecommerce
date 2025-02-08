@@ -5,7 +5,7 @@ import com.raulcg.ecommerce.exceptions.ProductNotFoundException;
 import com.raulcg.ecommerce.exceptions.QuantityNotAvailableException;
 import com.raulcg.ecommerce.models.Cart;
 import com.raulcg.ecommerce.models.Product;
-import com.raulcg.ecommerce.repositories.CartItem;
+import com.raulcg.ecommerce.models.CartItem;
 import com.raulcg.ecommerce.repositories.CartItemRepository;
 import com.raulcg.ecommerce.repositories.CartRepository;
 import com.raulcg.ecommerce.repositories.ProductRepository;
@@ -46,7 +46,7 @@ public class CartService implements ICartService {
             int currentQuantity = cartItemOptional.get().getQuantity();
             int newQuantity = currentQuantity + cartRequest.getQuantity();
 
-            if (newQuantity > cartItemOptional.get().getProduct().getStock()) {
+            if (newQuantity > cartItemOptional.get().getProduct().getTotalStock()) {
                 throw new QuantityNotAvailableException("Quantity not available!");
             }
 
@@ -76,6 +76,7 @@ public class CartService implements ICartService {
     }
 
 
+    @Transactional
     @Override
     public Cart updateCartItem(CartRequest cartRequest) {
 
@@ -89,16 +90,13 @@ public class CartService implements ICartService {
 
         if (cartItemOptional.isPresent()) {
             // Si el producto ya está en el carrito, actualizar la cantidad
-
-            int currentQuantity = cartItemOptional.get().getQuantity();
-            int newQuantity = currentQuantity + cartRequest.getQuantity();
-
-            if (newQuantity > cartItemOptional.get().getProduct().getStock()) {
+            int newQuantity = cartRequest.getQuantity();
+            if (newQuantity > cartItemOptional.get().getProduct().getTotalStock()) {
                 throw new QuantityNotAvailableException("Quantity not available!");
             }
 
             CartItem cartItem = cartItemOptional.get();
-            cartItem.setQuantity(cartItem.getQuantity() + cartRequest.getQuantity());
+            cartItem.setQuantity(cartRequest.getQuantity());
             cartItemRepository.save(cartItem);
             cartRepository.save(cart);
             return cart;
@@ -108,11 +106,24 @@ public class CartService implements ICartService {
         return cart;
     }
 
+    @Transactional
     @Override
-    public Cart deleteCartItem(CartRequest cartRequest) {
+    public Cart deleteCartItem(UUID userId, UUID productId) {
 
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new CartNotFoundException("Cart not found!"));
+        // Verificar si el producto ya está en el carrito
+        Optional<CartItem> cartItemOptional = cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst();
 
-        return null;
+        if (cartItemOptional.isPresent()) {
+            CartItem cartItem = cartItemOptional.get();
+            cart.getItems().remove(cartItem);
+            return cartRepository.save(cart);
+        }
+
+        throw new ProductNotFoundException("Product not found!");
     }
 
 }
