@@ -1,37 +1,35 @@
 package com.raulcg.ecommerce.utils;
 
 import com.raulcg.ecommerce.models.Cart;
-import com.raulcg.ecommerce.repositories.CartItem;
-import com.raulcg.ecommerce.responses.CartItemResponse;
-import com.raulcg.ecommerce.responses.CartResponse;
+import com.raulcg.ecommerce.models.CartItem;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
 public class CartMapper {
 
-    public CartResponse toCartResponse(Cart cart) {
-        CartResponse response = new CartResponse();
-        response.setId(cart.getId());
-        response.setUserId(cart.getUser().getId());
-        response.setItems(cart.getItems().stream()
+    public Map<String, Object> toCartResponse(Cart cart) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", cart.getId());
+        response.put("userId", cart.getUser().getId());
+        response.put("items", cart.getItems().stream()
                 .filter(item -> item.getProduct() != null)
-                .map(this::toCartItemResponse)
+                .map(this::toCartItemMap)
                 .collect(Collectors.toSet()));
-        response.setCreatedAt(cart.getCreatedAt());
-        response.setUpdatedAt(cart.getUpdatedAt());
         return response;
     }
 
-    private CartItemResponse toCartItemResponse(CartItem item) {
-        CartItemResponse response = new CartItemResponse();
-        response.setProductId(item.getProduct().getId());
-        response.setImage(item.getProduct().getImage());
-        response.setTitle(item.getProduct().getTitle());
-        response.setPrice(item.getProduct().getPrice());
-        response.setSalePrice(item.getProduct().getPrice()); // Cambiar si es necesario
-        response.setQuantity(item.getQuantity());
+    private Map<String, Object> toCartItemMap(CartItem item) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("productId", item.getProduct().getId());
+        response.put("image", item.getProduct().getImage());
+        response.put("title", item.getProduct().getTitle());
+        response.put("price", item.getProduct().getPrice());
+        response.put("salePrice", item.getProduct().getPrice()); // Cambiar si es necesario
+        response.put("quantity", item.getQuantity());
         return response;
     }
 }
