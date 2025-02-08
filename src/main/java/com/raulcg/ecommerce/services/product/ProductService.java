@@ -47,7 +47,7 @@ public class ProductService implements IProductService {
         newProduct.setImage(product.getImage());
         newProduct.setCategory(product.getCategory());
         newProduct.setBrand(product.getBrand());
-        newProduct.setStock(product.getStock());
+        newProduct.setTotalStock(product.getTotalStock());
         newProduct.setAverageReview(product.getAverageReview());
         return productRepository.save(newProduct);
     }
@@ -69,7 +69,7 @@ public class ProductService implements IProductService {
         productSaved.setImage(product.getImage());
         productSaved.setCategory(product.getCategory());
         productSaved.setBrand(product.getBrand());
-        productSaved.setStock(product.getStock());
+        productSaved.setTotalStock(product.getTotalStock());
         productSaved.setAverageReview(product.getAverageReview());
 
         productRepository.save(productSaved);
@@ -100,5 +100,17 @@ public class ProductService implements IProductService {
     public Product getProductById(UUID productId) {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Product> searchProducts(String keywords) {
+        return productRepository.searchProducts(keywords);
+    }
+
+    public void updateProductAverage(Product product) {
+        Integer avg = productRepository.findAverageRatingByProductId(product.getId());
+        product.setAverageReview(avg != null ? avg : 0);
+        productRepository.save(product);
     }
 }
