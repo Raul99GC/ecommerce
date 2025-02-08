@@ -2,6 +2,7 @@ package com.raulcg.ecommerce.services.product;
 
 import com.raulcg.ecommerce.models.Product;
 import com.raulcg.ecommerce.request.ProductRequest;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -22,4 +23,6 @@ public interface IProductService {
     List<Product> getFilteredProducts(List<String> categories, List<String> brands, String sortBy);
 
     Product getProductById(UUID productId);
+
+    List<Product> searchProducts(String keywords);
 }
