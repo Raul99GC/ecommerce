@@ -1,9 +1,9 @@
 package com.raulcg.ecommerce.security;
 
+import com.raulcg.ecommerce.enums.UserRole;
 import com.raulcg.ecommerce.security.jwt.AuthEntryPointJwt;
 import com.raulcg.ecommerce.security.jwt.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,7 +41,8 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults());
 
         http.authorizeHttpRequests(requests -> requests
-                .requestMatchers("/api/v1/admin/**").authenticated()
+                .requestMatchers("/api/v1/admin/**").hasAnyAuthority(UserRole.ADMIN.name())
+                .requestMatchers("/api/v1/common/feature/add").hasAnyAuthority(UserRole.ADMIN.name())
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/**").authenticated()
                 .anyRequest().permitAll()
