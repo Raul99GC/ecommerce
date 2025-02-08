@@ -9,26 +9,29 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductRequest {
 
-    private int averageReview;
+    private int averageReview = 0;
 
     @NotBlank(message = "brand is required")
     private String brand;
+
     @NotBlank(message = "category is required")
     private String category;
+
     @NotBlank(message = "description is required")
     private String description;
+
     @NotBlank(message = "image is required")
     private String image;
-    @NotBlank(message = "Name is required")
 
-    @Min(value = 0, message = "salePrice must be greater than 0")
+    @Min(value = 1, message = "salePrice must be greater than 0")
     private int salePrice;
 
-    @NotBlank(message = "salePrice is required")
-    @Min(value = 0, message = "price must be greater than 0")
+    @Min(value = 1, message = "price must be greater than 0")
     private double price;
+
     @NotBlank(message = "title is required")
     private String title;
-    @NotBlank(message = "stock is required")
-    private int stock;
+
+    @Min(value = 1, message = "stock must be greater than 0")
+    private int totalStock;
 }
