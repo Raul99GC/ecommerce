@@ -1,10 +1,9 @@
-package com.raulcg.ecommerce.repositories;
+package com.raulcg.ecommerce.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.raulcg.ecommerce.models.Cart;
-import com.raulcg.ecommerce.models.Product;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.UUID;
@@ -12,6 +11,7 @@ import java.util.UUID;
 @Entity
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class CartItem {
 
     @Id
@@ -19,11 +19,12 @@ public class CartItem {
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id")
+    @JoinColumn
+    @JsonManagedReference
     private Cart cart;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @JoinColumn
     @JsonManagedReference
     private Product product;
 
