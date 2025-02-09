@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -56,8 +57,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginRequest request, HttpServletResponse response) {
-
+    public ResponseEntity<?> loginUser(@Validated @RequestBody LoginRequest request, HttpServletResponse response) {
         Optional<User> userOptional = userService.findByEmail(request.getEmail());
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
@@ -95,9 +95,9 @@ public class AuthController {
     public ResponseEntity<?> logoutUser(HttpServletResponse response) {
         // Crear una cookie con el mismo nombre ("token") y valor vacío
         Cookie cookie = new Cookie("token", "");
-        // Establecer la cookie con tiempo de vida 0 para borrarla
         cookie.setMaxAge(0);
         cookie.setHttpOnly(true);
+        cookie.setSecure(true);
         cookie.setPath("/");
         response.addCookie(cookie);
 
