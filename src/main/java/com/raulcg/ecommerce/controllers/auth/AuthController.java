@@ -12,7 +12,6 @@ import com.raulcg.ecommerce.services.user.UserService;
 import com.raulcg.ecommerce.utils.AuthUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,17 +28,21 @@ import java.util.Optional;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
 
-    @Autowired
-    private JwtUtils jwtUtils;
+    private final UserService userService;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
 
-    @Autowired
-    private AuthUtils authUtils;
+    private final AuthenticationManager authenticationManager;
+
+    private final AuthUtils authUtils;
+
+    public AuthController(UserService userService, JwtUtils jwtUtils, AuthenticationManager authenticationManager, AuthUtils authUtils) {
+        this.userService = userService;
+        this.jwtUtils = jwtUtils;
+        this.authenticationManager = authenticationManager;
+        this.authUtils = authUtils;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<SignupResponse> registerUser(@RequestBody SignupRequest signupRequest) {
