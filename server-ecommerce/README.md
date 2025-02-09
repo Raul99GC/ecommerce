@@ -1,311 +1,346 @@
-# Documentación de la API: `/api/v1/auth`
+# Back-End Documentation
 
-## Autenticación
-### Método: Cookie con JWT
-- **Descripción**: Se utiliza un token JWT para autenticar al usuario. El token se envía como una cookie en las solicitudes.
-- **Encabezados necesarios**:
-    - Para endpoints protegidos, el cliente debe enviar la cookie `token` obtenida al iniciar sesión.
-- **Obtención del token**: El usuario debe iniciar sesión en el endpoint `/login`.
+## Overview
+This documentation covers the back-end API for the eCommerce project. It provides detailed information on each endpoint, including required parameters, request examples, and responses. A dedicated section for the database design is also provided, including table definitions and an ER diagram.
 
----
+## 🔓 Public Endpoints
 
-## Endpoints
+### 🛂 Authentication (`AuthController`)
 
-### **1. Registro de Usuario**
-- **Ruta**: `/api/v1/auth/register`
-- **Método**: `POST`
-- **Descripción**: Registra un nuevo usuario en el sistema.
-- **Parámetros del cuerpo (Body)**:
+#### ✅ Check Authentication Status
+**GET** `/api/v1/auth/check-auth`
+- **Description:** Verifies if the user is authenticated.
+- **Headers:**
+    - `Authorization: Bearer {JWT_TOKEN}` *(optional, can be sent via cookies instead)*
+
+#### 🔑 Login
+**POST** `/api/v1/auth/login`
+- **Body:**
   ```json
   {
-    "userName": "string (requerido)",
-    "email": "string (requerido)",
-    "password": "string (requerido)"
+    "email": "",
+    "password": ""
   }
   ```
-- **Respuesta exitosa (200)**:
+- **Description:** Authenticates a user and returns a JWT token.
+
+#### 🚪 Logout
+**POST** `/api/v1/auth/logout`
+- **Description:** Logs out the user by clearing authentication cookies.
+
+#### 📝 Register
+**POST** `/api/v1/auth/register`
+- **Body:**
   ```json
   {
-    "success": true,
-    "message": "Registration successful"
+    "userName": "",
+    "email": "",
+    "password": ""
   }
   ```
-- **Errores comunes**:
-    - **409 Conflict**:
-      ```json
-      {
-        "success": false,
-        "message": "User Already exists with the same email! Please try again"
-      }
-      ```
-    - **500 Internal Server Error**:
-      ```json
-      {
-        "success": false,
-        "message": "Some error occured"
-      }
-      ```
+- **Description:** Creates a new user account.
 
----
+## 🔐 Protected Endpoints
 
-### **2. Inicio de Sesión**
-- **Ruta**: `/api/v1/auth/login`
-- **Método**: `POST`
-- **Descripción**: Permite al usuario iniciar sesión y genera un token JWT.
-- **Parámetros del cuerpo (Body)**:
+### 🛍️ Product Management (`ProductsController`)
+
+#### 📦 Get Products
+**GET** `/api/v1/shop/products/get?category=array&brand=array&sortBy=string`
+- **Query Parameters:**
+    - `category`: Filter by category.
+    - `brand`: Filter by brand.
+    - `sortBy`: Sorting method, allowed values:
+        - `price-lowtohigh`
+        - `price-hightolow`
+        - `title-atoz`
+        - `title-ztoa`
+- **Description:** Retrieves a list of products based on filters.
+
+#### 🔍 Get Product by ID
+**GET** `/api/v1/shop/products/get/{productId}`
+- **Description:** Retrieves product details by ID.
+
+#### ✍️ Add Review
+**POST** `/api/v1/shop/review/add`
+- **Body:**
   ```json
   {
-    "email": "string (requerido)",
-    "password": "string (requerido)"
+    "reviewMessage": "",
+    "reviewValue": 0,
+    "userName": "",
+    "productId": "",
+    "userId": ""
   }
   ```
-- **Respuesta exitosa (200)**:
+- **Description:** Adds a review for a product.
+
+## 🔐🔑 Admin-Only Endpoints
+
+### 🏪 Product Management
+
+#### ➕ Add Product
+**POST** `/api/v1/admin/products/add`
+- **Body:**
   ```json
   {
-    "success": true,
-    "message": "Logged in successfully",
-    "user": {
-      "email": "string",
-      "role": "string",
-      "id": "string",
-      "userName": "string"
-    }
+    "averageReview": 0,
+    "brand": "",
+    "category": "",
+    "description": "",
+    "image": "",
+    "salePrice": 0,
+    "price": 0,
+    "title": "",
+    "totalStock": 0
   }
   ```
-- **Errores comunes**:
-    - **404 Not Found**:
-      ```json
-      {
-        "success": false,
-        "message": "User doesn't exists! Please register first"
-      }
-      ```
-    - **401 Unauthorized**:
-      ```json
-      {
-        "success": false,
-        "message": "Incorrect password! Please try again"
-      }
-      ```
-    - **500 Internal Server Error**:
-      ```json
-      {
-        "success": false,
-        "message": "Some error occured"
-      }
-      ```
+- **Description:** Adds a new product to the inventory.
 
----
-
-### **3. Cierre de Sesión**
-- **Ruta**: `/api/v1/auth/logout`
-- **Método**: `POST`
-- **Descripción**: Cierra la sesión del usuario eliminando el token JWT de la cookie.
-- **Respuesta exitosa (200)**:
+#### ✏️ Edit Product
+**POST** `/api/v1/admin/products/edit/{productId}`
+- **Body:**
   ```json
   {
-    "success": true,
-    "message": "Logged out successfully!"
+    "averageReview": 0,
+    "brand": "",
+    "category": "",
+    "description": "",
+    "image": "",
+    "salePrice": 0,
+    "price": 0,
+    "title": "",
+    "totalStock": 0
   }
   ```
+- **Description:** Edits an existing product.
 
----
+#### ❌ Delete Product
+**DELETE** `/api/v1/admin/products/delete/{productId}`
+- **Description:** Deletes a product by ID.
 
-### **4. Verificación de Autenticación**
-- **Ruta**: `/api/v1/auth/check-auth`
-- **Método**: `GET`
-- **Descripción**: Verifica si el usuario está autenticado.
-- **Encabezados necesarios**:
-    - Cookie: `token`
-- **Respuesta exitosa (200)**:
+#### 📷 Upload Product Image
+**POST** `/api/v1/admin/products/upload-image?my_file=string`
+- **Description:** Uploads an image for a product.
+
+### 📦 Order Management (`OrderAdminController`)
+
+#### 📜 Get Order Details
+**GET** `/api/v1/admin/orders/details/{orderId}`
+- **Description:** Retrieves order details.
+
+#### 📋 Get All Orders
+**GET** `/api/v1/admin/orders/get`
+- **Description:** Fetches all orders.
+
+#### 🔄 Update Order Status
+**PUT** `/api/v1/admin/orders/update-status/{orderId}?orderStatus=string`
+- **Description:** Updates the status of an order.
+
+### 📦 Order Handling (`OrderShopController`)
+
+#### 💰 Capture Payment
+**POST** `/api/v1/shop/order/capture`
+- **Body:**
   ```json
   {
-    "success": true,
-    "message": "Authenticated user!",
-    "user": {
-      "id": "string",
-      "email": "string",
-      "role": "string",
-      "userName": "string"
-    }
+    "orderId": "",
+    "token": "",
+    "payerId": ""
   }
   ```
-- **Errores comunes**:
-    - **401 Unauthorized**:
-      ```json
-      {
-        "success": false,
-        "message": "Unauthorised user!"
-      }
-      ```
+- **Description:** Captures payment for an order.
 
+#### 🛍️ Create Order
+**POST** `/api/v1/shop/order/create`
+- **Body:**
+  ```json
+  {
+    "userId": "",
+    "cartId": "",
+    "addressInfo": {},
+    "orderStatus": "",
+    "paymentMethod": "",
+    "paymentStatus": "",
+    "totalAmount": 0,
+    "token": "",
+    "payerId": "",
+    "orderDate": "",
+    "orderUpdateDate": ""
+  }
+  ```
+- **Description:** Creates a new order.
 
-# Diagrama de la Base de Datos MySQL
+### 🛒 Cart Management (`CartController`)
 
-## Tabla: `users`
-| Campo       | Tipo             | Restricciones                  |
-|-------------|------------------|--------------------------------|
-| id          | INT (PK, AI)     | PRIMARY KEY, AUTO_INCREMENT    |
-| user_name   | VARCHAR(255)     | NOT NULL, UNIQUE               |
-| email       | VARCHAR(255)     | NOT NULL, UNIQUE               |
-| password    | VARCHAR(255)     | NOT NULL                       |
-| role_id     | INT (FK)         | FOREIGN KEY -> `roles(id)`     |
+#### 🛍️ Add to Cart
+**POST** `/api/v1/shop/cart/add`
+- **Body:**
+  ```json
+  {
+    "userId": "",
+    "productId": "",
+    "quantity": 0
+  }
+  ```
+- **Description:** Adds a product to the cart.
 
-### Relaciones:
-- Un `user` pertenece a un `role`.
-- Un `role` puede tener múltiples `users`.
+#### 🛍️ Get Cart
+**GET** `/api/v1/shop/cart/get/{userId}`
+- **Description:** Retrieves the cart contents.
 
----
+#### ✏️ Update Cart
+**PUT** `/api/v1/shop/cart/update-cart`
+- **Body:**
+  ```json
+  {
+    "userId": "",
+    "productId": "",
+    "quantity": 0
+  }
+  ```
+- **Description:** Updates the quantity of an item in the cart.
 
-## Tabla: `roles`
-| Campo       | Tipo             | Restricciones                  |
-|-------------|------------------|--------------------------------|
-| id          | INT (PK, AI)     | PRIMARY KEY, AUTO_INCREMENT    |
-| role_name   | VARCHAR(255)     | NOT NULL, UNIQUE               |
-
-### Relaciones:
-- Un `role` puede tener múltiples `users`.
-
----
-
-## Tabla: `carts`
-| Campo       | Tipo             | Restricciones                  |
-|-------------|------------------|--------------------------------|
-| id          | INT (PK, AI)     | PRIMARY KEY, AUTO_INCREMENT    |
-| user_id     | INT (FK)         | FOREIGN KEY -> `users(id)`     |
-| created_at  | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
-| updated_at  | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
-
-### Relaciones:
-- Un `cart` pertenece a un `user`.
-- Un `user` puede tener un solo `cart`.
-
----
-
-## Tabla: `cart_items`
-| Campo       | Tipo             | Restricciones                  |
-|-------------|------------------|--------------------------------|
-| id          | INT (PK, AI)     | PRIMARY KEY, AUTO_INCREMENT    |
-| cart_id     | INT (FK)         | FOREIGN KEY -> `carts(id)`     |
-| product_id  | INT (FK)         | FOREIGN KEY -> `products(id)`  |
-| quantity    | INT              | NOT NULL, CHECK (quantity >= 1)|
-
-### Relaciones:
-- Un `cart_item` pertenece a un `cart`.
-- Un `cart` puede tener múltiples `cart_items`.
-- Un `cart_item` se asocia con un único `product`.
+#### ❌ Remove from Cart
+**DELETE** `/api/v1/shop/cart/{userId}/{productId}`
+- **Description:** Removes an item from the cart.
 
 ---
 
-## Tabla: `addresses`
-| Campo       | Tipo             | Restricciones                  |
-|-------------|------------------|--------------------------------|
-| id          | INT (PK, AI)     | PRIMARY KEY, AUTO_INCREMENT    |
-| user_id     | INT (FK)         | FOREIGN KEY -> `users(id)`     |
-| address     | VARCHAR(255)     | NOT NULL                       |
-| city        | VARCHAR(255)     | NOT NULL                       |
-| pincode     | VARCHAR(20)      | NOT NULL                       |
-| phone       | VARCHAR(20)      | NOT NULL                       |
-| notes       | TEXT             | NULL                           |
-| created_at  | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
-| updated_at  | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
+## Database
 
-### Relaciones:
-- Una `address` pertenece a un `user`.
-- Un `user` puede tener múltiples `addresses`.
+### 🗺️ ER Diagram
+![alt text](https://raw.githubusercontent.com/Raul99GC/ecommerce/refs/heads/main/images/ecommerce-db.png "Database ER Diagram")
 
----
+### 📊 Tables
+## 🛍️ Tables
 
-## Tabla: `features`
-| Campo       | Tipo             | Restricciones                  |
-|-------------|------------------|--------------------------------|
-| id          | INT (PK, AI)     | PRIMARY KEY, AUTO_INCREMENT    |
-| image       | VARCHAR(255)     | NULL                           |
-| created_at  | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
-| updated_at  | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
-
-### Relaciones:
-- No tiene relaciones con otras tablas.
+### **1. `user`**
+| Column      | Type           | Constraints                     |
+|------------|--------------|--------------------------------|
+| `id`       | `binary(16)` | `PK, NOT NULL`                 |
+| `created_at` | `datetime(6)` |                                |
+| `email`    | `varchar(255)` | `NOT NULL`                     |
+| `password` | `varchar(120)` | `NOT NULL`                     |
+| `updated_at` | `datetime(6)` |                                |
+| `user_name` | `varchar(255)` | `NOT NULL`                     |
+| `cart_id`  | `binary(16)` | `FK → cart.id`                  |
+| `role_id`  | `binary(16)` | `FK → role.id`                  |
 
 ---
 
-## Tabla: `orders`
-| Campo          | Tipo             | Restricciones                  |
-|----------------|------------------|--------------------------------|
-| id             | INT (PK, AI)     | PRIMARY KEY, AUTO_INCREMENT    |
-| user_id        | INT (FK)         | FOREIGN KEY -> `users(id)`     |
-| address_id     | INT (FK)         | FOREIGN KEY -> `addresses(id)` |
-| order_status   | VARCHAR(50)      | NULL                           |
-| payment_method | VARCHAR(50)      | NULL                           |
-| payment_status | VARCHAR(50)      | NULL                           |
-| total_amount   | DECIMAL(10, 2)   | NOT NULL                       |
-| order_date     | DATETIME         | NOT NULL                       |
-| order_update_date | DATETIME      | NULL                           |
-| payment_id     | VARCHAR(255)     | NULL                           |
-| payer_id       | VARCHAR(255)     | NULL                           |
-
-### Relaciones:
-- Un `order` pertenece a un `user`.
-- Un `order` pertenece a una `address`.
-- Un `order` puede tener múltiples `order_cart_items`.
+### **2. `role`**
+| Column  | Type         | Constraints    |
+|---------|------------|---------------|
+| `id`    | `binary(16)` | `PK, NOT NULL` |
+| `role`  | `tinyint`    |               |
 
 ---
 
-## Tabla: `order_cart_items`
-| Campo       | Tipo             | Restricciones                  |
-|-------------|------------------|--------------------------------|
-| id          | INT (PK, AI)     | PRIMARY KEY, AUTO_INCREMENT    |
-| order_id    | INT (FK)         | FOREIGN KEY -> `orders(id)`    |
-| product_id  | INT (FK)         | FOREIGN KEY -> `products(id)`  |
-| title       | VARCHAR(255)     | NOT NULL                       |
-| image       | VARCHAR(255)     | NULL                           |
-| price       | DECIMAL(10, 2)   | NOT NULL                       |
-| quantity    | INT              | NOT NULL                       |
-
-### Relaciones:
-- Un `order_cart_item` pertenece a un `order`.
-- Un `order` puede tener múltiples `order_cart_items`.
-- Un `order_cart_item` se asocia con un único `product`.
+### **3. `cart`**
+| Column       | Type         | Constraints    |
+|-------------|------------|---------------|
+| `id`        | `binary(16)` | `PK, NOT NULL` |
+| `created_at` | `datetime(6)` |               |
+| `updated_at` | `datetime(6)` |               |
 
 ---
 
-## Tabla: `products`
-| Campo          | Tipo             | Restricciones                  |
-|----------------|------------------|--------------------------------|
-| id             | INT (PK, AI)     | PRIMARY KEY, AUTO_INCREMENT    |
-| image          | VARCHAR(255)     | NULL                           |
-| title          | VARCHAR(255)     | NOT NULL                       |
-| description    | TEXT             | NULL                           |
-| category       | VARCHAR(255)     | NULL                           |
-| brand          | VARCHAR(255)     | NULL                           |
-| price          | DECIMAL(10, 2)   | NOT NULL                       |
-| sale_price     | DECIMAL(10, 2)   | NULL                           |
-| total_stock    | INT              | NOT NULL                       |
-| average_review | DECIMAL(3, 2)    | NULL                           |
-| created_at     | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
-| updated_at     | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
-
-### Relaciones:
-- Un `product` puede estar en múltiples `cart_items`.
-- Un `product` puede estar en múltiples `order_cart_items`.
-- Un `product` puede tener múltiples `product_reviews`.
+### **4. `cart_item`**
+| Column      | Type         | Constraints              |
+|------------|------------|-------------------------|
+| `id`       | `binary(16)` | `PK, NOT NULL`         |
+| `quantity` | `int`        | `NOT NULL`             |
+| `cart_id`  | `binary(16)` | `FK → cart.id`         |
+| `product_id` | `binary(16)` | `FK → product.id`     |
 
 ---
 
-## Tabla: `product_reviews`
-| Campo          | Tipo             | Restricciones                  |
-|----------------|------------------|--------------------------------|
-| id             | INT (PK, AI)     | PRIMARY KEY, AUTO_INCREMENT    |
-| product_id     | INT (FK)         | FOREIGN KEY -> `products(id)`  |
-| user_id        | INT (FK)         | FOREIGN KEY -> `users(id)`     |
-| user_name      | VARCHAR(255)     | NOT NULL                       |
-| review_message | TEXT             | NULL                           |
-| review_value   | INT              | NOT NULL, CHECK (value >= 1 AND value <= 5) |
-| created_at     | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
-| updated_at     | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
+### **5. `product`**
+| Column         | Type          | Constraints      |
+|--------------|--------------|-----------------|
+| `id`        | `binary(16)`  | `PK, NOT NULL`  |
+| `average_review` | `int`   | `NOT NULL`      |
+| `brand`     | `varchar(255)` |                 |
+| `category`  | `varchar(255)` |                 |
+| `created_at` | `datetime(6)` |                 |
+| `description` | `varchar(255)` |                |
+| `image`     | `varchar(255)` |                 |
+| `title`     | `varchar(255)` |                 |
+| `total_stock` | `double`   | `NOT NULL`      |
+| `updated_at` | `datetime(6)` |                 |
 
-### Relaciones:
-- Un `product_review` pertenece a un `product`.
-- Un `product_review` pertenece a un `user`.
-- Un `product` puede tener múltiples `product_reviews`.
 ---
+
+### **6. `product_review`**
+| Column         | Type          | Constraints            |
+|--------------|--------------|-----------------------|
+| `id`        | `binary(16)`  | `PK, NOT NULL`       |
+| `review_message` | `varchar(255)` |                   |
+| `review_value` | `int`       | `NOT NULL`          |
+| `user_name` | `varchar(255)` | `NOT NULL`          |
+| `product_id` | `binary(16)`  | `FK → product.id`   |
+| `user_id`  | `binary(16)`  | `FK → user.id`      |
+
+---
+
+### **7. `orders`**
+| Column         | Type          | Constraints             |
+|--------------|--------------|------------------------|
+| `id`        | `binary(16)`  | `PK, NOT NULL`        |
+| `address_id` | `binary(16)`  | `FK → address.id`     |
+| `notes`     | `varchar(255)` |                        |
+| `order_date` | `datetime(6)` |                        |
+| `order_update_date` | `datetime(6)` |                |
+| `order_status` | `tinyint`   |                        |
+| `payer_id`  | `varchar(255)` |                        |
+| `payment_method` | `varchar(255)` |                  |
+| `payment_status` | `tinyint` |                        |
+| `token`     | `varchar(255)` |                        |
+| `total_amount` | `bigint`   |                        |
+| `user_id`   | `binary(16)`  | `FK → user.id`        |
+
+---
+
+### **8. `order_item`**
+| Column      | Type          | Constraints             |
+|------------|--------------|------------------------|
+| `id`       | `binary(16)`  | `PK, NOT NULL`        |
+| `image`    | `varchar(255)` |                        |
+| `price`    | `double`      |                        |
+| `product_id` | `binary(16)`  | `FK → product.id`     |
+| `quantity` | `int`        | `NOT NULL`            |
+| `title`    | `varchar(255)` |                        |
+| `order_id` | `binary(16)`  | `FK → orders.id`      |
+| `order_items_id` | `binary(16)` |                    |
+
+---
+
+### **9. `address`**
+| Column      | Type         | Constraints            |
+|------------|------------|-----------------------|
+| `id`       | `binary(16)` | `PK, NOT NULL`       |
+| `address`  | `varchar(255)` |                   |
+| `notes`    | `varchar(255)` |                   |
+| `phone`    | `varchar(255)` |                   |
+| `pincode`  | `varchar(255)` |                   |
+| `updated_at` | `datetime(6)` |                   |
+
+---
+
+### **10. `feature`**
+| Column      | Type          | Constraints          |
+|------------|--------------|---------------------|
+| `id`       | `binary(16)`  | `PK, NOT NULL`     |
+| `created_at` | `datetime(6)` |                     |
+| `image`    | `varchar(255)` |                     |
+| `updated_at` | `datetime(6)` |                     |
+
+---
+
+
+## 🔒 Security
+- **Public:** `/api/v1/auth/**`
+- **Authenticated:** `/api/v1/**`
+- **Admin-Only:** `/api/v1/admin/**`
+
+This document serves as a guide to effectively utilize the API endpoints. 🚀
