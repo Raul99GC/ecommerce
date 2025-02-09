@@ -142,7 +142,6 @@
 
 # Diagrama de la Base de Datos MySQL
 
-
 ## Tabla: `users`
 | Campo       | Tipo             | Restricciones                  |
 |-------------|------------------|--------------------------------|
@@ -164,6 +163,9 @@
 | id          | INT (PK, AI)     | PRIMARY KEY, AUTO_INCREMENT    |
 | role_name   | VARCHAR(255)     | NOT NULL, UNIQUE               |
 
+### Relaciones:
+- Un `role` puede tener múltiples `users`.
+
 ---
 
 ## Tabla: `carts`
@@ -174,6 +176,10 @@
 | created_at  | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
 | updated_at  | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
 
+### Relaciones:
+- Un `cart` pertenece a un `user`.
+- Un `user` puede tener un solo `cart`.
+
 ---
 
 ## Tabla: `cart_items`
@@ -183,6 +189,11 @@
 | cart_id     | INT (FK)         | FOREIGN KEY -> `carts(id)`     |
 | product_id  | INT (FK)         | FOREIGN KEY -> `products(id)`  |
 | quantity    | INT              | NOT NULL, CHECK (quantity >= 1)|
+
+### Relaciones:
+- Un `cart_item` pertenece a un `cart`.
+- Un `cart` puede tener múltiples `cart_items`.
+- Un `cart_item` se asocia con un único `product`.
 
 ---
 
@@ -199,6 +210,10 @@
 | created_at  | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
 | updated_at  | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
 
+### Relaciones:
+- Una `address` pertenece a un `user`.
+- Un `user` puede tener múltiples `addresses`.
+
 ---
 
 ## Tabla: `features`
@@ -208,6 +223,9 @@
 | image       | VARCHAR(255)     | NULL                           |
 | created_at  | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
 | updated_at  | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
+
+### Relaciones:
+- No tiene relaciones con otras tablas.
 
 ---
 
@@ -226,6 +244,11 @@
 | payment_id     | VARCHAR(255)     | NULL                           |
 | payer_id       | VARCHAR(255)     | NULL                           |
 
+### Relaciones:
+- Un `order` pertenece a un `user`.
+- Un `order` pertenece a una `address`.
+- Un `order` puede tener múltiples `order_cart_items`.
+
 ---
 
 ## Tabla: `order_cart_items`
@@ -238,6 +261,11 @@
 | image       | VARCHAR(255)     | NULL                           |
 | price       | DECIMAL(10, 2)   | NOT NULL                       |
 | quantity    | INT              | NOT NULL                       |
+
+### Relaciones:
+- Un `order_cart_item` pertenece a un `order`.
+- Un `order` puede tener múltiples `order_cart_items`.
+- Un `order_cart_item` se asocia con un único `product`.
 
 ---
 
@@ -257,6 +285,11 @@
 | created_at     | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
 | updated_at     | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
 
+### Relaciones:
+- Un `product` puede estar en múltiples `cart_items`.
+- Un `product` puede estar en múltiples `order_cart_items`.
+- Un `product` puede tener múltiples `product_reviews`.
+
 ---
 
 ## Tabla: `product_reviews`
@@ -271,4 +304,8 @@
 | created_at     | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
 | updated_at     | TIMESTAMP        | DEFAULT CURRENT_TIMESTAMP      |
 
+### Relaciones:
+- Un `product_review` pertenece a un `product`.
+- Un `product_review` pertenece a un `user`.
+- Un `product` puede tener múltiples `product_reviews`.
 ---
