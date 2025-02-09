@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -36,25 +37,24 @@ public class CartController {
     }
 
     @GetMapping("/get/{userId}")
-    public ResponseEntity<CartResponse> getCartItems(@PathVariable UUID userId) {
+    public ResponseEntity<CartResponse<?>> getCartItems(@PathVariable UUID userId) {
         Cart cart = cartService.getCart(userId);
-
-        CartResponse response = cartMapper.toCartResponse(cart);
-        return ResponseEntity.ok(response);
+        Map<String, Object> response = cartMapper.toCartResponse(cart);
+        return ResponseEntity.ok(new CartResponse<>(true, response));
     }
 
-    @PutMapping("/update/{userId}")
-    public ResponseEntity<GenericApiResponse<CartResponse>> updateCartItem(@PathVariable UUID userId, @Validated @RequestBody CartRequest cartRequest) {
-        Cart cart = cartService.updateCartItem(cartRequest);
-        CartResponse response = cartMapper.toCartResponse(cart);
-        return ResponseEntity.ok(new GenericApiResponse<>(true, response));
+    @PutMapping("/update-cart")
+    public ResponseEntity<CartResponse<?>> updateCartItem(@Validated @RequestBody CartRequest cartRequest) {
+           Cart cart = cartService.updateCartItem(cartRequest);
+        Map<String, Object> response = cartMapper.toCartResponse(cart);
+        return ResponseEntity.ok(new CartResponse<>(true, response));
     }
 
-    @DeleteMapping("/delete/{userId}")
-    public ResponseEntity<GenericApiResponse<CartResponse>> deleteCartItem(@PathVariable UUID userId, @Validated @RequestBody CartRequest cartRequest) {
-        Cart cart = cartService.deleteCartItem(cartRequest);
-        CartResponse response = cartMapper.toCartResponse(cart);
-        return ResponseEntity.ok(new GenericApiResponse<>(true, response));
+    @DeleteMapping("/{userId}/{productId}")
+    public ResponseEntity<CartResponse<?>> deleteCartItem(@PathVariable UUID userId, @PathVariable UUID productId) {
+        Cart cart = cartService.deleteCartItem(userId, productId);
+        Map<String, Object> response = cartMapper.toCartResponse(cart);
+        return ResponseEntity.ok(new CartResponse<>(true, response));
     }
 
 }
