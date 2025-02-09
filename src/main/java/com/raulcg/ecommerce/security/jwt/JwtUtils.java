@@ -69,8 +69,8 @@ public class JwtUtils {
         return String.valueOf(Objects.requireNonNull(getClaimsFromToken(token, type)).get("sub"));
     }
 
-    public String getAuthorities(String token, JwtType type) {
-        return String.valueOf(Objects.requireNonNull(getClaimsFromToken(token, type)).get("authorities"));
+    public List<String> getAuthorities(String token, JwtType type) {
+        return getClaimsFromToken(token, type).get("authorities", List.class);
     }
 
     public String generateTokenFromUserDetails(UserDetailsImpl userDetails) {
